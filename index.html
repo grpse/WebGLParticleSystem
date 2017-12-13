@@ -1,0 +1,62 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CardboardClone</title>
+    <style>
+        html,
+        body {
+            margin: 0px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: black;
+        }
+    </style>
+    <script src="BufferFormat.js"></script>
+    <script src="Buffer.js"></script>
+    <script src="Texture.js"></script>
+    <script src="ShaderProgram.js"></script>
+    <script src="WebGL.js"></script>
+    <script src="app.js"></script>
+</head>
+
+<body>
+    <img src="background.jpg" width="512px" height="512px" style="display:none;"/>
+    <!-- vertex shader -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        attribute vec2 aVertexPosition;
+        attribute vec2 aTextureCoord;
+    
+    varying highp vec2 vTextureCoord;
+    
+    void main() {
+       gl_Position = vec4(aVertexPosition, 0, 1);
+       vTextureCoord = aTextureCoord;
+    }
+    </script>
+    <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying highp vec2 vTextureCoord;
+
+    uniform sampler2D u_texture;
+    
+    void main() {
+        float radius = length(vTextureCoord);
+        float theta = atan(vTextureCoord.y/vTextureCoord.x);
+        vec2 radial = vec2(radius, theta);
+
+
+        gl_FragColor = texture2D(u_texture, radial);
+    }
+    </script>
+    <canvas></canvas>
+</body>
+
+</html>
