@@ -33,32 +33,20 @@ function appStart() {
         0, 2, 3
     ]);
 
-    var image2 = {
-        width: 2,
-        height: 2,
-        data: new Uint8Array([
-            0, 255, 0, 255,
-            255, 255, 255, 255, 
-            0, 255, 0, 255,
-            255, 255, 255, 255
-        ])        
-    };
-
-    glContext.getExtension("OES_vertex_array_object");
-    glContext.enable(glContext.DEPTH_TEST);   
+    gl.enableDepthTest();    
     
-    var texture = gl.loadTexture0();    
+    var texture = gl.load2DTexture0();    
     texture.loadFromImage(image);
     var textureLocation = shader.getUniformLocation("u_texture"); 
     texture.setTextureLocation(textureLocation);
 
 
     // CREATE VERTEX BUFFER
-    var positionBuffer = gl.createBufferWithData(_2dquad, glContext.ARRAY_BUFFER)
+    var positionBuffer = gl.createBufferWithData(_2dquad, WebGL.BufferType.ArrayBuffer)
     var positionBufferFormat = new BufferFormat();
     positionBufferFormat.index = shader.getAttribLocation("aVertexPosition");
     positionBufferFormat.size = 2;
-    positionBufferFormat.type = glContext.FLOAT;
+    positionBufferFormat.type = WebGL.Type.Float;
     positionBufferFormat.normalized = false;
     positionBufferFormat.stride = 0;
     positionBufferFormat.pointer = 0;
@@ -67,11 +55,11 @@ function appStart() {
 
 
     // CREATE UV BUFFER
-    var uvBuffer = gl.createBufferWithData(_uvquad, glContext.ARRAY_BUFFER)
+    var uvBuffer = gl.createBufferWithData(_uvquad, WebGL.BufferType.ArrayBuffer)
     var uvBufferFormat = new BufferFormat();
     uvBufferFormat.index = shader.getAttribLocation("aTextureCoord");
     uvBufferFormat.size = 2;
-    uvBufferFormat.type = glContext.FLOAT;
+    uvBufferFormat.type = WebGL.Type.Float;
     uvBufferFormat.normalized = false;
     uvBufferFormat.stride = 0;
     uvBufferFormat.pointer = 0;
@@ -79,18 +67,12 @@ function appStart() {
     uvBuffer.setVertexAttributeArrayFormat(uvBufferFormat);
 
     //CREATE INDEX BUFFER
-    var indexBuffer = gl.createBufferWithData(_elquad, glContext.ELEMENT_ARRAY_BUFFER);
-
+    var indexBuffer = gl.createBufferWithData(_elquad, WebGL.BufferType.ElementArrayBuffer);
+    indexBuffer.setElementType(WebGL.Type.UnsignedShort);
 
     function render() {
 
-        // Tell WebGL how to convert from clip space to pixels
-        if (glContext.clearDepth) glContext.clearDepth(1.0); 
-        else glContext.clearDepthf(1.0);
-        glContext.viewport(0, 0, glContext.canvas.width, glContext.canvas.height);
-        glContext.clearColor(128, 0, 128, 1);
-        glContext.clear(glContext.COLOR_BUFFER_BIT);
-
+        gl.clear();
         
         // Setup the attributes to pull data from our buffers
         shader.use();
@@ -107,10 +89,7 @@ function appStart() {
         indexBuffer.bind();
 
         var vertexCount = indexBuffer.getLength();
-        var indexType = glContext.UNSIGNED_SHORT;
-        var offset = 0;
-
-        glContext.drawElements(glContext.TRIANGLES, indexBuffer.getLength(), indexType, offset);
+        gl.drawElements(indexBuffer);  
 
         requestAnimationFrame(render);
     }

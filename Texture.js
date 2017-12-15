@@ -1,4 +1,4 @@
-function Texture(glContext, level) {
+function Texture2D(glContext, level) {
     var self = this;
     var gl = self.gl = glContext;
     self.image = null;

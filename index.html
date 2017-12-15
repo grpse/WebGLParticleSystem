@@ -18,6 +18,8 @@
             background: black;
         }
     </style>
+    <script src="gl-matrix.js"></script>
+    <script src="ParticleSystem.js"></script>
     <script src="BufferFormat.js"></script>
     <script src="Buffer.js"></script>
     <script src="Texture.js"></script>
@@ -28,6 +30,29 @@
 
 <body>
     <img src="background.jpg" width="512px" height="512px" style="display:none;"/>
+
+    <script id="vertex-shader-particle" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition_ModelSpace;
+    attribute vec4 aColorForParticle;
+
+    uniform mat4 WVP;
+
+    varying vec4 particleColor;
+
+    void main() {
+        gl_Position = WVP * aVertexPosition_ModelSpace; 
+        particleColor = aColorForParticle;
+    }
+    </script>
+
+    <script id="fragment-shader-particle" type="x-shader/x-fragment">
+    varying vec4 particleColor;
+
+    void main() {
+        gl_FragColor = particleColor;
+    }
+    </script>
+
     <!-- vertex shader -->
     <script id="vertex-shader" type="x-shader/x-vertex">
         attribute vec2 aVertexPosition;
