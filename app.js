@@ -5,6 +5,7 @@ function appStart() {
     var image = document.getElementsByTagName('img')[0];
     var canvas = document.getElementsByTagName('canvas')[0];
     window.glContext = canvas.getContext('webgl');
+    
     var gl = new WebGL(glContext);
 
     var fragmentShaderSource = document.getElementById('fragment-shader').innerText;
@@ -70,26 +71,60 @@ function appStart() {
     var indexBuffer = gl.createBufferWithData(_elquad, WebGL.BufferType.ElementArrayBuffer);
     indexBuffer.setElementType(WebGL.Type.UnsignedShort);
 
+
+    var particlesVertShader = `
+       
+    attribute vec3 aVertexPosition_ModelSpace;
+    attribute vec4 aColorForParticle;
+    
+    uniform mat4 WVP;
+
+    varying vec4 particleColor;
+
+    void main() {
+        gl_Position = WVP * vec4(aVertexPosition_ModelSpace, 1); 
+        particleColor = aColorForParticle;
+    }
+    `;
+
+    var particlesFragShader = `
+    precision highp float;
+
+    varying vec4 particleColor;
+    
+    void main() {
+        gl_FragColor = particleColor;
+    }
+    `;
+
+    var particleShaderProgram = gl.createShaderProgram(particlesVertShader, particlesFragShader);
+
+    var particleSystem = new ParticleSystem(glContext, particleShaderProgram);
+
     function render() {
 
         gl.clear();
         
-        // Setup the attributes to pull data from our buffers
-        shader.use();
-        texture.bind();
+        // // Setup the attributes to pull data from our buffers
+        // shader.use();
+        // texture.bind();
 
-        positionBuffer.bind();
-        positionBuffer.bindVertexAttributePointerFormat();
+        // positionBuffer.bind();
+        // positionBuffer.bindVertexAttributePointerFormat();
         
-        uvBuffer.bind();
-        uvBuffer.bindVertexAttributePointerFormat();
+        // uvBuffer.bind();
+        // uvBuffer.bindVertexAttributePointerFormat();
         
         
-        // draw!!!
-        indexBuffer.bind();
+        // // draw!!!
+        // indexBuffer.bind();
 
-        var vertexCount = indexBuffer.getLength();
-        gl.drawElements(indexBuffer);  
+        // var vertexCount = indexBuffer.getLength();
+        // gl.drawElements(indexBuffer);  
+
+        particleShaderProgram.use();
+        particleSystem.update();
+        particleSystem.draw();
 
         requestAnimationFrame(render);
     }
